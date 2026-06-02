@@ -1,0 +1,49 @@
+---
+title: "Final"
+author: Jocelyn Magner
+date: 6-4-26
+format: html
+---
+# Set up
+Github repo: https://github.com/jmagner4/ENVS-193DS_spring-2026_final
+
+## Read in packages
+```{r}
+
+```
+
+# Problems
+## Problem 1. Research Writing
+### a. 
+In part 1, I think they used binomial/logistic regression. If habitat use is measured as used/not used, then the response variable would be binary.
+In part 2, I think they used a Spearman's correlation test. Wanting to know the relationship between two variables suggests a correlation test should be used. Since both variables are categorical/nominal that suggests a non-parametric test should be used.
+
+### b. 
+
+Part 1: Our evidence suggests that the distance to the water's edge is an important factor in determining where American Avocet choose to live.
+
+Part 2: Different shorebird species, including American Avocet, Forster’s Tern, Black-necked Stilt, prefer different types of coastal habitats.
+
+### c.
+
+## Problem 2. Data Analysis
+### a.
+### b.
+### c.
+### d.
+### e.
+### f.
+### g.
+### h.
+### i.
+### j.
+### k.
+
+## Problem 3. Affective and explanatory visualizations
+### a.
+### b.
+### c.
+### d.
+### e.
+### f.
+### g.
