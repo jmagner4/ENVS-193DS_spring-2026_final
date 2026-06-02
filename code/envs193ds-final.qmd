@@ -25,6 +25,7 @@ Part 1: Our evidence suggests that the distance to the water's edge is an import
 Part 2: Different shorebird species, including American Avocet, Forster’s Tern, Black-necked Stilt, prefer different types of coastal habitats.
 
 ### c.
+One potential variable influencing the probability of American Avocet microhabitat use is the availability of food or prey species in the habitats as well; this population would be a discrete variable (measured as a number of individuals per one-meter net sweep). I expect American Avocets to choose areas with higher prey populations because it makes finding food and surviving easier.
 
 ## Problem 2. Data Analysis
 ### a.
