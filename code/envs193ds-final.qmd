@@ -129,7 +129,51 @@ plot(simulateResiduals(model2))
 ```
 
 ### h. Visualize the Model
+
+```{r}
+# generate predictons to plot
+mod_preds <- ggpredict(model2, terms = c("height_cm [all]", "ant_species"))
+```
+
+```{r}
+
+# base layer ggplot
+ggplot(nests_clean, aes(x = height_cm, y = case_control, color = ant_species)) +
+
+  # Raw data points 
+  geom_point(alpha = 0.3, size = 2.5) +
   
+  # Confidence intervals (ribbon)
+  geom_ribbon(data = mod_preds, 
+              aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high, fill = group), 
+              alpha = 0.15, inherit.aes = FALSE) +
+  
+  # Logistic regression prediction lines
+  geom_line(data = mod_preds, 
+            aes(x = x, y = predicted, color = group), 
+            linewidth = 1.2, inherit.aes = FALSE) +
+  
+  # Scale and presentation formatting
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2)) +
+  
+  # Take out gridlines and gray background
+  theme_minimal() +
+    theme(panel.grid = element_blank(), # Removes grid
+    text = element_text(face = "bold", size = 11))+
+
+  # Use colors that are different from the default
+  scale_color_manual(values = c("#FEF65B","#FF2088","#0041C2")) +
+  scale_fill_manual(values = c("#FEF65B","#FF2088", "#0041C2")) +
+
+  # Add axis labels
+  labs(
+    x = "Height (m)",
+    y = "Probability of Bird Nest Presence",
+    color = "Ant Species",
+    fill = "Ant Species"
+  )
+
+```
 
 ### i. Write a caption for your figure
 
@@ -138,6 +182,7 @@ plot(simulateResiduals(model2))
 ### k. Interpret Your Results
 
 ## Problem 3. Affective and explanatory visualizations
+
 ### a.
 ### b.
 ### c.
