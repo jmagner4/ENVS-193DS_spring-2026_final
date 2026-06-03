@@ -9,7 +9,14 @@ Github repo: https://github.com/jmagner4/ENVS-193DS_spring-2026_final
 
 ## Read in packages
 ```{r}
+# read in packages
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(here)
 
+# store data in new object
+nests<- read_csv(here("data","nest_data_final.csv"))
 ```
 
 # Problems
@@ -28,10 +35,56 @@ Part 2: Different shorebird species, including American Avocet, Forster’s Tern
 One potential variable influencing the probability of American Avocet microhabitat use is the availability of food or prey species in the habitats as well; this population would be a discrete variable (measured as a number of individuals per one-meter net sweep). I expect American Avocets to choose areas with higher prey populations because it makes finding food and surviving easier.
 
 ## Problem 2. Data Analysis
-### a.
+
+You will answer the following research questions:
+
+How do tree height and acacia ant species influence the probability of bird nest occurrence (of any species of birds)?
+
+Does acacia ant species identity influence the effect of tree height on probability of nest occurrence differ depending on acacia ant species?
+
+
+### a. Clean and Wrangle Data
+```{r}
+# create new object for cleaned data
+nests_clean <- nests |>
+  
+# select columns of interest
+  select(ant_species, case_control, height_cm)|>
+
+# include only 3 ants species of interest
+  filter(ant_species %in% c("AB", "BBR", "RRB"))|>
+
+# factor reorders levels of ant species as directed 
+  mutate(
+    ant_species = factor(ant_species, levels = c("AB", "RRB", "BBR")),
+    
+# include new column of full scientific names       
+    full_scientific_name = case_when(
+      ant_species == "AB" ~ "Crematogaster sjostedti",
+      ant_species == "RRB" ~ "Crematogaster mimosae",
+      ant_species == "BBR" ~ "Crematogaster nigriceps"))
+
+# display structure
+nests_clean
+
+# display 10 random samples
+nests_clean |> slice_sample(n = 10)
+```
+
 ### b.
+
+For the case_control column, a 1 represents a tree where a bird nest is present while a 0 represents an "available" tree where no birds nests are present.
+
 ### c.
+
+Tree height is a continuous variable. As tree height increases the probability of nest occurrence would increase according to paragraph 2 of the results section. It is unclear specifically why, but they do say tree architecture has an important role in nest site selection in the discussion; maybe because tall trees have less predators.
+
+
+Acacia ant species is a categorical variable (confirmed in the methods section). The probability of finding a bird's nest is higher for trees occupied by C. nigriceps compared to C. mimosae (found in second paragraph of results section). 
+
+
 ### d.
+
 ### e.
 ### f.
 ### g.
