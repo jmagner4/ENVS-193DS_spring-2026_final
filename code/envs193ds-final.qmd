@@ -2,18 +2,23 @@
 title: "Final"
 author: Jocelyn Magner
 date: 6-4-26
-format: html
+format: pdf
 ---
 # Set up
-Github repo: https://github.com/jmagner4/ENVS-193DS_spring-2026_final
+[Github repo:](https://github.com/jmagner4/ENVS-193DS_spring-2026_final)
 
 ## Read in packages
 ```{r}
+#| label: Set Up
+#| message: false
+#| warning: false
 # read in packages
-library(tidyverse)
-library(dplyr)
-library(janitor)
-library(here)
+library(tidyverse) # general use
+library(here) # file organization
+library(janitor) # cleaning data frames
+library(scales) # modifying axis labels
+library(ggeffects) # getting model predictions
+library(MuMIn) # model selection
 
 # store data in new object
 nests<- read_csv(here("data","nest_data_final.csv"))
@@ -21,27 +26,22 @@ nests<- read_csv(here("data","nest_data_final.csv"))
 
 # Problems
 ## Problem 1. Research Writing
-### a. 
+### a.Transparent statistical methods
+
 In part 1, I think they used binomial/logistic regression. If habitat use is measured as used/not used, then the response variable would be binary.
 In part 2, I think they used a Spearman's correlation test. Wanting to know the relationship between two variables suggests a correlation test should be used. Since both variables are categorical/nominal that suggests a non-parametric test should be used.
 
-### b. 
+### b. Suggetions for Rewriting
 
 Part 1: Our evidence suggests that the distance to the water's edge is an important factor in determining where American Avocet choose to live.
 
 Part 2: Different shorebird species, including American Avocet, Forster’s Tern, Black-necked Stilt, prefer different types of coastal habitats.
 
-### c.
+### c. Further Analysis
+
 One potential variable influencing the probability of American Avocet microhabitat use is the availability of food or prey species in the habitats as well; this population would be a discrete variable (measured as a number of individuals per one-meter net sweep). I expect American Avocets to choose areas with higher prey populations because it makes finding food and surviving easier.
 
 ## Problem 2. Data Analysis
-
-You will answer the following research questions:
-
-How do tree height and acacia ant species influence the probability of bird nest occurrence (of any species of birds)?
-
-Does acacia ant species identity influence the effect of tree height on probability of nest occurrence differ depending on acacia ant species?
-
 
 ### a. Clean and Wrangle Data
 ```{r}
@@ -65,17 +65,17 @@ nests_clean <- nests |>
       ant_species == "BBR" ~ "Crematogaster nigriceps"))
 
 # display structure
-nests_clean
+str(nests_clean)
 
 # display 10 random samples
 nests_clean |> slice_sample(n = 10)
 ```
 
-### b.
+### b. Response Variable
 
 For the case_control column, a 1 represents a tree where a bird nest is present while a 0 represents an "available" tree where no birds nests are present.
 
-### c.
+### c. Purpose of Study
 
 Tree height is a continuous variable. As tree height increases the probability of nest occurrence would increase according to paragraph 2 of the results section. It is unclear specifically why, but they do say tree architecture has an important role in nest site selection in the discussion; maybe because tall trees have less predators.
 
@@ -83,15 +83,59 @@ Tree height is a continuous variable. As tree height increases the probability o
 Acacia ant species is a categorical variable (confirmed in the methods section). The probability of finding a bird's nest is higher for trees occupied by C. nigriceps compared to C. mimosae (found in second paragraph of results section). 
 
 
-### d.
+### d. Table of Models
 
-### e.
-### f.
-### g.
-### h.
-### i.
-### j.
-### k.
+4 models total:
+
+| Model number | height | ant species | Predictor list              |
+|-------------:|:------:|:-----------:|:---------------------------:|
+| 1            |        |             | no interactions             |
+| 2            |    X   |      X      | interaction                 | 
+
+### e. Run the Models
+
+```{r}
+#| label: model fitting
+#| include: false
+
+# model 1: no interaction occurs
+model1 <-lm(case_control ~ height_cm + ant_species,
+            data = nests_clean)
+
+# model 2: interaction
+model2 <-lm(case_control ~ height_cm * ant_species,
+            data = nests_clean)
+
+
+```
+
+### f. Select the Best Model
+
+```{r}
+#| label: Model Selection
+AICc(model1, model2)|>
+  arrange(-AICc)
+```
+
+
+### g. Check the Diagnostics
+
+```{r}
+#| label: check diagnostics
+
+par(mfrow = c(2,2))
+    plot(model1)
+
+```
+
+### h. Visualize the Model
+  
+
+### i. Write a caption for your figure
+
+### j. Calculate Model Predictions
+
+### k. Interpret Your Results
 
 ## Problem 3. Affective and explanatory visualizations
 ### a.
