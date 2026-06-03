@@ -19,6 +19,7 @@ library(janitor) # cleaning data frames
 library(scales) # modifying axis labels
 library(ggeffects) # getting model predictions
 library(MuMIn) # model selection
+library(DHARMa) # diagnostic plots
 
 # store data in new object
 nests<- read_csv(here("data","nest_data_final.csv"))
@@ -87,10 +88,10 @@ Acacia ant species is a categorical variable (confirmed in the methods section).
 
 4 models total:
 
-| Model number | height | ant species | Predictor list              |
-|-------------:|:------:|:-----------:|:---------------------------:|
-| 1            |        |             | no interactions             |
-| 2            |    X   |      X      | interaction                 | 
+| Model number | height | ant species | Model Description                      |
+|-------------:|:------:|:-----------:|:--------------------------------------:|
+| 1            |        |             | no interactions (no predictors present)|
+| 2            |    X   |      X      | interaction (height and ant species)   | 
 
 ### e. Run the Models
 
@@ -99,13 +100,14 @@ Acacia ant species is a categorical variable (confirmed in the methods section).
 #| include: false
 
 # model 1: no interaction occurs
-model1 <-lm(case_control ~ height_cm + ant_species,
-            data = nests_clean)
+model1 <-glm(case_control ~ ant_species + height_cm,
+            data = nests_clean,
+            family = "binomial")
 
 # model 2: interaction
-model2 <-lm(case_control ~ height_cm * ant_species,
-            data = nests_clean)
-
+model2 <-glm(case_control ~ ant_species * height_cm,
+            data = nests_clean,
+            family = "binomial")
 
 ```
 
@@ -116,16 +118,14 @@ model2 <-lm(case_control ~ height_cm * ant_species,
 AICc(model1, model2)|>
   arrange(-AICc)
 ```
-
+The best model as determined by Akaike's Information Criterion (AIC) is model 1. This model suggests there is an interactive effect of ant species and tree height on bird nest occurrence.
 
 ### g. Check the Diagnostics
 
 ```{r}
 #| label: check diagnostics
 
-par(mfrow = c(2,2))
-    plot(model1)
-
+plot(simulateResiduals(model2))
 ```
 
 ### h. Visualize the Model
