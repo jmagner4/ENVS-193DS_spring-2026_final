@@ -78,7 +78,7 @@ For the case_control column, a 1 represents a tree where a bird nest is present 
 
 ### c. Purpose of Study
 
-Tree height is a continuous variable. As tree height increases the probability of nest occurrence would increase according to paragraph 2 of the results section. It is unclear specifically why, but they do say tree architecture has an important role in nest site selection in the discussion; maybe because tall trees have less predators.
+Tree height is a continuous variable. As tree height increases the probability of nest occurrence would increase according to paragraph 2 of the results section. The authors say tree architecture has an important role in nest site selection in the second paragraph of the discussion; denser tree cover likely provides better nest concealment, protecting bird eggs from predators (but nothing about height specifically here).
 
 
 Acacia ant species is a categorical variable (confirmed in the methods section). The probability of finding a bird's nest is higher for trees occupied by C. nigriceps compared to C. mimosae (found in second paragraph of results section). 
@@ -100,6 +100,8 @@ Acacia ant species is a categorical variable (confirmed in the methods section).
 #| include: false
 
 # model 1: no interaction occurs
+# use glm because we want to know how a variable "predicts" or "affects" another and the response variable is non-parametric
+# add family = binomial because the response variable is binary 
 model1 <-glm(case_control ~ ant_species + height_cm,
             data = nests_clean,
             family = "binomial")
@@ -131,19 +133,24 @@ plot(simulateResiduals(model2))
 ### h. Visualize the Model
 
 ```{r}
-# generate predictons to plot
+# generate predictions to plot
 mod_preds <- ggpredict(model2, terms = c("height_cm [all]", "ant_species"))
 ```
 
 ```{r}
 
 # base layer ggplot
-ggplot(nests_clean, aes(x = height_cm, y = case_control, color = ant_species)) +
+ggplot() +
 
   # Raw data points 
-  geom_point(alpha = 0.3, size = 2.5) +
+  geom_point(data = nests_clean, 
+             aes(x = height_cm, 
+                 y = case_control, 
+                 color = ant_species, 
+                 group = ant_species,
+             alpha = 0.3, size = 2.5)) +
   
-  # Confidence intervals (ribbon)
+  # 95% confidence interval ribbons
   geom_ribbon(data = mod_preds, 
               aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high, fill = group), 
               alpha = 0.15, inherit.aes = FALSE) +
@@ -156,7 +163,10 @@ ggplot(nests_clean, aes(x = height_cm, y = case_control, color = ant_species)) +
   # Scale and presentation formatting
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2)) +
   
-  # Take out gridlines and gray background
+  # display model predictions for each ant species in a different panel
+  facet_wrap(~group) + 
+  
+  # Take out grid lines and gray background
   theme_minimal() +
     theme(panel.grid = element_blank(), # Removes grid
     text = element_text(face = "bold", size = 11))+
@@ -165,21 +175,41 @@ ggplot(nests_clean, aes(x = height_cm, y = case_control, color = ant_species)) +
   scale_color_manual(values = c("#FEF65B","#FF2088","#0041C2")) +
   scale_fill_manual(values = c("#FEF65B","#FF2088", "#0041C2")) +
 
-  # Add axis labels
+  # Add labels with units
   labs(
-    x = "Height (m)",
+    x = "Height (cm)",
     y = "Probability of Bird Nest Presence",
     color = "Ant Species",
-    fill = "Ant Species"
-  )
-
+    fill = "Ant Species")
 ```
+
 
 ### i. Write a caption for your figure
 
+**Figure 1. The probability of bird nest presence differs depending on tree height and ant species present.** The circles represent raw binary observations of bird nest presence (1.0) or absence (0.0) at a specific tree height. The colors represent different ant species occupation of the trees sampled; yellow represents Crematogaster sjostedti (AB), pink represents Crematogaster mimosae (RRB), blue represents Crematogaster nigriceps (BBR). The lines represent the predicted probability of a bird nesting at that corresponding height. The translucent ribbons represent 95% confidence intervals for each species represented. Data from: Lujan, E., Nielsen, R., Short, Z., Wicks, S., Nderitu Watetu, W., Malingati Khasoha, L., Palmer, T. M., Goheen, J. R., & Alston, J. M. (2023). Data, code, and metadata for: Symbiotic acacia ants drive nesting behavior by birds in an African savanna [Data set]. Zenodo. https://doi.org/10.5281/zenodo.8373322
+
 ### j. Calculate Model Predictions
 
+```{r}
+#| echo: true
+# calculate model predictions with model 2 since it was the least bad accordign to AICc
+ggpredict(model2,
+          terms = c("height_cm [600]", # include height at 600cm as instructed
+                    "ant_species")) # include ant species also
+```
+
+
 ### k. Interpret Your Results
+
+Ant species and tree height interact to predict the probability of bird nest occurrence. 
+
+Birds are more likely to nest in trees with aggressive defending ant species like C. nigriceps (BBR) and C. mimosae (RRB), likely because these ants ward off predators. Birds also prefer to nest in taller trees likely because it is harder for land predators to reach their eggs.
+
+Additionally the presence of C. nigriceps effects tree structure making birds most likely to choose these trees. In figure 1 the slope of the blue line is steep at ~150 cm suggesting a high probability that birds will nest in BBR trees taller than 150 cm.
+
+In the tallest tree (600 cm), the probability of nesting is 0.20 (95% CI:[0.00,0.99]) for AB, 0.74 (95% CI:[0.48,0.90]) for RRB, and 1.00 (95% CI:[1.00,1.00]) for BBR.
+
+
 
 ## Problem 3. Affective and explanatory visualizations
 
