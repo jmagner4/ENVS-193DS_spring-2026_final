@@ -243,3 +243,75 @@ cor.test(my_data$perceived_stress_level, my_data$daily_step_count,
 ```
 A moderately strong (0.4) relationship is observed.
 
+
+
+### d. Create Visualization
+
+```{r}
+# create blocks out of step values. (Had to look up how to do this because my data was looking chaotic.)
+my_data_clean <- my_data |>
+  mutate(step_groups = cut(daily_step_count, 
+                           breaks = seq(0, 20000, by = 2000), 
+                           labels = c("0-2k", "2k-4k", "4k-6k", "6k-8k", "8k-10k", 
+                                      "10k-12k", "12k-14k", "14k-16k", "16k-18k", "18k-20k"),
+                           include.lowest = TRUE))
+
+
+# calculate medians to represent Spearman correlation
+medians <- my_data_clean |>
+  group_by(step_groups) |>
+  summarize(median_stress = median(perceived_stress_level))
+
+# create plot, assign x and y values
+# X is my discrete predictor variable, Y is ordinal response variable.
+ggplot(my_data_clean, aes(x = step_groups, y = perceived_stress_level))+
+
+# Raw data points jittered to prevent overlap
+  geom_jitter(
+    shape = 19, 
+    size = 3, 
+    alpha = 0.4, 
+    color = "purple", 
+    width = 0.2,   
+    height = 0.15
+  ) +
+  
+# plot median points
+  geom_point(
+    data = medians, 
+    aes(x = step_groups, y = median_stress), 
+    color = "#d94801", 
+    size = 3
+  ) +
+  
+# plot median trendline
+  geom_line(
+    data = medians, 
+    aes(x = step_groups, y = median_stress, group = 1), 
+    color = "#d94801",
+    linewidth = 1.2
+  ) +
+  
+# graph title and axis titles
+labs(title = "Perceived Stress by Daily Step Count",
+     subtitle = "6/3/2026",
+x = "Daily Step Count (steps)",
+y = "Perceived Daily Stress Level (1-5)")+
+
+# choosing non-default theme
+  theme_bw()+
+  
+# remove grid
+  theme(panel.grid = element_blank())
+```
+
+### e. Write a caption
+
+**Figure 2. Higher step count tends to correlate with a lower stress level.** Each blue dot represents one days total step count and stress level. Step counts were grouped into bins every 2,000 steps. Each red dot represents the median stress level for that step count bin. The red line is a median trend line.
+
+
+### f. Write about results
+
+I found a moderate negative relationship between daily step count and daily perceived stress level (Spearman $\rho$= -0.41 , S = 21329, p <0.006, $\alpha$ = 0.05). My results suggest that as daily step count increases stress level decreases.
+
+### g. Sharing your affective visualization
