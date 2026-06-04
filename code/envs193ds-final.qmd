@@ -23,6 +23,8 @@ library(DHARMa) # diagnostic plots
 
 # store data in new object
 nests<- read_csv(here("data","nest_data_final.csv"))
+
+my_data <- read_csv(here("data","personaldataproject.csv"))
 ```
 
 # Problems
@@ -213,10 +215,31 @@ In the tallest tree (600 cm), the probability of nesting is 0.20 (95% CI:[0.00,0
 
 ## Problem 3. Affective and explanatory visualizations
 
-### a.
-### b.
-### c.
-### d.
-### e.
-### f.
-### g.
+### a. Comparing Visualizations
+
+The visualizations differ in that the exploratory data is more clear and direct where the affective is more artistic and subtle. They are similar in that they represent the same data set.
+There appears to be a negative relationship between my daily perceived stress level and daily step count in my exploratory data visualization that I chose to display in my affective data visualization. They differ in that the affective visualization does not have any numbers or labels, it is only clear if you read the artist statement.
+Feedback I got from peers in week 9 included adding information to the artist statement regarding what lines represent data and to reduce clutter meaning I could be less direct and more artistic with incorporating data. I did implement these suggestions by removing raw data points, smoothing the bar graph, and expanding the artist statement.
+
+### b. Designing an Analysis
+
+My research question was "Does my daily step count have a positive effect on my stress levels?" I think by positive I meant "good." To phrase it better: As my daily step count increases, does my daily perceived stress level decrease? 
+To examine the relationship between step count and stress level I could use a Spearman's correlation. 
+I would use Spearman instead of Pearson because my response variable is ordinal (therefore non-parametric).
+
+### c. Check Assumptions and Run Analysis
+#### Check Assumptions of Spearman correlation
+
+Monotonic relationship between variables: Looking at the scatter plot, the data seems roughly monotonic.
+Independent observations: According to a quick Google search, my data cannot be statistically independent since it all came from me, everyday, my data is inherently linked, but that was the assignment, so I am going to proceed.
+
+
+#### Run the Spearman's Correlation
+
+```{r}
+# run spearman correlation test with daily step count and stress level
+cor.test(my_data$perceived_stress_level, my_data$daily_step_count,
+         method = "spearman")
+```
+A moderately strong (0.4) relationship is observed.
+
