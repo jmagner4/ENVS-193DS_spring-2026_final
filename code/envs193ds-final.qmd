@@ -1,11 +1,11 @@
 ---
 title: "Final"
 author: Jocelyn Magner
-date: 6-4-26
+date: 6-5-26
 format: pdf
 ---
 # Set up
-[Github repo:](https://github.com/jmagner4/ENVS-193DS_spring-2026_final)
+[Github repo:](https://github.com/jmagner4/ENVS-193DS_spring-2026_final) https://github.com/jmagner4/ENVS-193DS_spring-2026_final
 
 ## Read in packages
 ```{r}
@@ -16,9 +16,8 @@ format: pdf
 library(tidyverse) # general use
 library(here) # file organization
 library(janitor) # cleaning data frames
-library(scales) # modifying axis labels
 library(ggeffects) # getting model predictions
-library(MuMIn) # model selection
+library(MuMIn) # for AICc
 library(DHARMa) # diagnostic plots
 
 # store data in new object
@@ -42,7 +41,7 @@ Part 2: Different shorebird species, including American Avocet, Forster’s Tern
 
 ### c. Further Analysis
 
-One potential variable influencing the probability of American Avocet microhabitat use is the availability of food or prey species in the habitats as well; this population would be a discrete variable (measured as a number of individuals per one-meter net sweep). I expect American Avocets to choose areas with higher prey populations because it makes finding food and surviving easier.
+One potential variable influencing the probability of American Avocet microhabitat use is the availability of food or prey species in the habitats as well; this population would be a discrete variable (measured as a number of individuals per one-meter net sweep for example). I expect American Avocets to choose areas with higher prey populations because it makes finding food and surviving easier.
 
 ## Problem 2. Data Analysis
 
@@ -71,7 +70,7 @@ nests_clean <- nests |>
 str(nests_clean)
 
 # display 10 random samples
-nests_clean |> slice_sample(n = 10)
+slice_sample(nests_clean, n = 10)
 ```
 
 ### b. Response Variable
@@ -99,16 +98,16 @@ Acacia ant species is a categorical variable (confirmed in the methods section).
 
 ```{r}
 #| label: model fitting
-#| include: false
 
 # model 1: no interaction occurs
-# use glm because we want to know how a variable "predicts" or "affects" another and the response variable is non-parametric
-# add family = binomial because the response variable is binary 
+# use glm because we want to know how a variable "predicts" or "affects" 
+# another and the response variable is non-parametric
 model1 <-glm(case_control ~ ant_species + height_cm,
             data = nests_clean,
-            family = "binomial")
+            family = "binomial")# add family = binomial because the 
+                                # response variable is binary
 
-# model 2: interaction
+# model 2: interaction occurs
 model2 <-glm(case_control ~ ant_species * height_cm,
             data = nests_clean,
             family = "binomial")
@@ -119,42 +118,47 @@ model2 <-glm(case_control ~ ant_species * height_cm,
 
 ```{r}
 #| label: Model Selection
+
+# run Akaike's Information Criterion on models
 AICc(model1, model2)|>
   arrange(-AICc)
 ```
-The best model as determined by Akaike's Information Criterion (AIC) is model 1. This model suggests there is an interactive effect of ant species and tree height on bird nest occurrence.
+The best model as determined by Akaike's Information Criterion (AIC) is the model that suggests there is an interactive effect of ant species and tree height on bird nest occurrence.
 
 ### g. Check the Diagnostics
 
 ```{r}
 #| label: check diagnostics
-
+#| fig-width: 10
+#| fig-height: 5
+# use DHARMa package diagnostics for best GLM
 plot(simulateResiduals(model2))
+# there is no setting to left-align the variables. I could not figure out how 
+# to have center text not overlap the line.
 ```
 
-### h. Visualize the Model
+### h. Visualize the Model Predictions
 
 ```{r}
 # generate predictions to plot
 mod_preds <- ggpredict(model2, terms = c("height_cm [all]", "ant_species"))
-```
-
-```{r}
 
 # base layer ggplot
 ggplot() +
 
   # Raw data points 
-  geom_point(data = nests_clean, 
-             aes(x = height_cm, 
-                 y = case_control, 
-                 color = ant_species, 
+  geom_point(data = nests_clean, # use clean data frame
+             aes(x = height_cm, # assign x axis
+                 y = case_control, #assign y axis
+                 color = ant_species, #color bt ant species
                  group = ant_species,
-             alpha = 0.3, size = 2.5)) +
+             alpha = 0.3, size = 2.5)) + # make trandparent and visible size
   
   # 95% confidence interval ribbons
   geom_ribbon(data = mod_preds, 
-              aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high, fill = group), 
+              aes(x = x, y = predicted, 
+                  ymin = conf.low, ymax = conf.high, 
+                  fill = group), 
               alpha = 0.15, inherit.aes = FALSE) +
   
   # Logistic regression prediction lines
@@ -170,8 +174,11 @@ ggplot() +
   
   # Take out grid lines and gray background
   theme_minimal() +
-    theme(panel.grid = element_blank(), # Removes grid
+    theme(panel.grid = element_blank(),
     text = element_text(face = "bold", size = 11))+
+  
+  # remove legend
+    theme(legend.position = "none")+
 
   # Use colors that are different from the default
   scale_color_manual(values = c("#FEF65B","#FF2088","#0041C2")) +
@@ -194,10 +201,11 @@ ggplot() +
 
 ```{r}
 #| echo: true
-# calculate model predictions with model 2 since it was the least bad accordign to AICc
+# calculate model predictions with model 2 since it was the least bad according
+# to AICc
 ggpredict(model2,
           terms = c("height_cm [600]", # include height at 600cm as instructed
-                    "ant_species")) # include ant species also
+                    "ant_species")) # include ant species so it displays all 3
 ```
 
 
@@ -241,14 +249,14 @@ Independent observations: According to a quick Google search, my data cannot be 
 cor.test(my_data$perceived_stress_level, my_data$daily_step_count,
          method = "spearman")
 ```
-A moderately strong (0.4) relationship is observed.
-
+A moderate (0.4) strength relationship is observed.
 
 
 ### d. Create Visualization
 
 ```{r}
-# create blocks out of step values. (Had to look up how to do this because my data was looking chaotic.)
+# create blocks out of step values. (Had to look up how to do this because 
+# my data was looking chaotic.)
 my_data_clean <- my_data |>
   mutate(step_groups = cut(daily_step_count, 
                            breaks = seq(0, 20000, by = 2000), 
@@ -271,7 +279,7 @@ ggplot(my_data_clean, aes(x = step_groups, y = perceived_stress_level))+
     shape = 19, 
     size = 3, 
     alpha = 0.4, 
-    color = "purple", 
+    color = "blue", 
     width = 0.2,   
     height = 0.15
   ) +
@@ -312,6 +320,7 @@ y = "Perceived Daily Stress Level (1-5)")+
 
 ### f. Write about results
 
-I found a moderate negative relationship between daily step count and daily perceived stress level (Spearman $\rho$= -0.41 , S = 21329, p <0.006, $\alpha$ = 0.05). My results suggest that as daily step count increases stress level decreases.
+I found a moderate negative relationship between daily step count and daily perceived stress level (Spearman $\rho$ = -0.41 , S = 21329, p <0.006, $\alpha$ = 0.05). My results suggest that as daily step count increases stress level decreases.
 
 ### g. Sharing your affective visualization
+Shared in week 10 workshop.
